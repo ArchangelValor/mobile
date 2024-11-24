@@ -31,6 +31,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name='Index' options={{headerShown: false}}/>
+        <Stack.Screen name='(tabs)/home' options={{headerShown: false}}/>
       
       </Stack>
       <StatusBar style="auto" />
