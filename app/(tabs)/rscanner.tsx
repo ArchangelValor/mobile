@@ -1,12 +1,17 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
+import Camera from '@/components/Camera';
 
-function rscanner() {
-    return (
-        <View>
-            <Text>this is the receipt scanner screen </Text>
-        </View>
-    );
+export default function rscanner() {
+  return (
+    <View style={styles.container}>
+      <Camera></Camera>
+    </View>
+  );
 }
-
-export default rscanner;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#25292e",
+  
+  },
+});
