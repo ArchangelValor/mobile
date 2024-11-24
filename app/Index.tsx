@@ -12,7 +12,7 @@ export default function Index() {
       </QRscanner>
       <View style={styles.container}>
         <Link href="/(tabs)/home" style={styles.button}>
-          Move to home
+          Click this to navigate home and continue to design, thanks
         </Link>
       </View>
     </View>
