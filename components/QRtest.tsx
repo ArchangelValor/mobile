@@ -3,7 +3,7 @@ import { Link, Stack } from "expo-router";
 
 import { useCameraPermissions } from "expo-camera";
 
-export default function index() {
+export default function QRtest() {
   const [permission, requestPermission] = useCameraPermissions();
 
   const isPermissionGranted = Boolean(permission?.granted);
@@ -16,7 +16,7 @@ export default function index() {
         <Pressable onPress={requestPermission}>
           <Text style={styles.buttonStyle}>Request Permissions</Text>
         </Pressable>
-        <Link href={"/qrscan"} asChild>
+        <Link href={"/scanqr"} asChild>
           <Pressable disabled={!isPermissionGranted}>
             <Text
               style={[
