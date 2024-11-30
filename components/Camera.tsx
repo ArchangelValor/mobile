@@ -1,34 +1,31 @@
-import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { useState } from 'react';
-import { TouchableOpacity, StyleSheet, Text, View, Button } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Button } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { Ionicons } from '@expo/vector-icons';
+import RCOverlay from './RCOverlay';
 
 export default function Camera() {
-  const [facing, setFacing] = useState<CameraType>('back');
+  const [facing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
   if (!permission) {
-    // Camera permissions are still loading.
     return <View />;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Button onPress={requestPermission} title="Grant permission" />
       </View>
     );
   }
 
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
-
-  const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
+  const handleCapture = () => {
+    // Implement receipt capture logic here
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    alert('Receipt captured!');
   };
 
   return (
@@ -36,19 +33,16 @@ export default function Camera() {
       <CameraView 
         style={styles.camera} 
         facing={facing}
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ['qr'],
-        }}
       >
+        <RCOverlay />
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.captureButton} onPress={() => setScanned(false)}>
-            <Text style={styles.captureButtonText}>Scan</Text>
+          <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
+            <Ionicons name="scan-outline" size={30} color="black" />
           </TouchableOpacity>
         </View>
       </CameraView>
       {scanned && (
-        <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+        <Button title={'Scan Another Receipt'} onPress={() => setScanned(false)} />
       )}
     </View>
   );
@@ -66,6 +60,14 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   captureButton: {
     height: 75,
     width: 75,
@@ -73,32 +75,11 @@ const styles = StyleSheet.create({
     borderRadius: 75 / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 50,
-    left: '50%',
-    marginLeft: -37.5,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: 'black',
   },
-  captureButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 10,
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
   text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 18,
     color: 'white',
   },
 });
