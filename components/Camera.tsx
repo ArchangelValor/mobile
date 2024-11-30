@@ -1,10 +1,11 @@
-import { CameraView, CameraType, useCameraPermissions,  } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { useState } from 'react';
 import { TouchableOpacity, StyleSheet, Text, View, Button } from 'react-native';
 
 export default function Camera() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -21,30 +22,34 @@ export default function Camera() {
     );
   }
 
-  async function takePicture() {
-    // const photo = await takePictureAsync();
-    // Handle captured photo here (e.g., save to device storage)
-  }
-
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
 
+  const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
+    setScanned(true);
+    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+  };
+
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} barcodeScannerSettings={{ barcodeTypes: ["qr"] }}>
-        {/* Capture button */}
-        
+      <CameraView 
+        style={styles.camera} 
+        facing={facing}
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barcodeScannerSettings={{
+          barcodeTypes: ['qr'],
+        }}
+      >
         <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-          <Text style={styles.captureButtonText}></Text>
-        </TouchableOpacity>
-        
-          {/* <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity> */}
+          <TouchableOpacity style={styles.captureButton} onPress={() => setScanned(false)}>
+            <Text style={styles.captureButtonText}>Scan</Text>
+          </TouchableOpacity>
         </View>
       </CameraView>
+      {scanned && (
+        <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+      )}
     </View>
   );
 }
@@ -62,16 +67,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   captureButton: {
-    height: 75, // Height of the button
-    width: 75, // Width of the button
+    height: 75,
+    width: 75,
     backgroundColor: 'white',
-    borderRadius: 75 / 2, // Half of width/height to make it circular
+    borderRadius: 75 / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute', // Allow free positioning
-    bottom: 50, // Adjust bottom position (optional)
-    left: '50%', // Center horizontally
-    marginLeft: -37.5, // Half of width to adjust exact centering
+    position: 'absolute',
+    bottom: 50,
+    left: '50%',
+    marginLeft: -37.5,
     borderWidth: 1,
     borderColor: 'black',
   },
@@ -97,3 +102,4 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
+

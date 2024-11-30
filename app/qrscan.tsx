@@ -1,5 +1,6 @@
-import { Camera, CameraView } from "expo-camera";
+import { CameraView, BarcodeScanningResult, Camera } from "expo-camera";
 import { Stack } from "expo-router";
+import { useState, useEffect, useRef } from 'react';
 import {
   AppState,
   Linking,
@@ -7,22 +8,30 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
+  View,
+  Text,
 } from "react-native";
-import { Overlay } from "./Overlay";
-import { useEffect, useRef } from "react";
-import { View, Text } from "react-native";
+import Overlay from "./Overlay";
 
-export default function qrscan() {
+export default function QRScan() {
   const qrLock = useRef(false);
   const appState = useRef(AppState.currentState);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (
         appState.current.match(/inactive|background/) &&
         nextAppState === "active"
       ) {
         qrLock.current = false;
+        setScanned(false);
       }
       appState.current = nextAppState;
     });
@@ -32,50 +41,66 @@ export default function qrscan() {
     };
   }, []);
 
+  const handleBarCodeScanned = (result: BarcodeScanningResult) => {
+    const { data } = result;
+    if (data && !qrLock.current) {
+      qrLock.current = true;
+      setScanned(true);
+      setTimeout(async () => {
+        await Linking.openURL(data);
+        alert(`QR code has been scanned!`);
+        setScanned(false);
+        qrLock.current = false;
+      }, 500);
+    }
+  };
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
   return (
     <SafeAreaView style={StyleSheet.absoluteFillObject}>
       <Stack.Screen
         options={{
-          title: "Overview",
+          title: "QR Scanner",
           headerShown: false,
         }}
       />
       {Platform.OS === "android" ? <StatusBar hidden /> : null}
       <CameraView
         style={StyleSheet.absoluteFillObject}
-        facing="back"
-        onBarcodeScanned={({ data }) => {
-          if (data && !qrLock.current) {
-            qrLock.current = true;
-            setTimeout(async () => {
-              await Linking.openURL(data);
-              console.log('QR SCANNED')
-            }, 500);
-          }
-        }}
+        onBarcodeScanned={scanned ? undefined : (result) => handleBarCodeScanned(result)}
       />
-      <View style={styles.textContainer}>
-        <Text style={styles.text}>Scan QR Code</Text>
-      </View>
       <Overlay />
+      {scanned && (
+        <View style={styles.scanAgainContainer}>
+          <Text style={styles.scanAgainText}>Tap to Scan Again</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  textContainer: {
+  scanAgainContainer: {
     position: 'absolute',
-    top: 50,
+    bottom: 50,
     left: 0,
     right: 0,
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dim background
-    padding: 10,
   },
-  text: {
+  scanAgainText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
 });
 
