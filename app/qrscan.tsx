@@ -1,6 +1,6 @@
 import { CameraView, BarcodeScanningResult, Camera } from "expo-camera";
 import { Stack } from "expo-router";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import {
   AppState,
   Linking,
@@ -25,7 +25,7 @@ export default function QRScan() {
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasPermission(status === "granted");
     })();
 
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -49,13 +49,13 @@ export default function QRScan() {
     if (data && !qrLock.current) {
       qrLock.current = true;
       setScanned(true);
-      await saveSessionFromQr(data);
-      setInterval(() => {
-        if(data) {
-          router.push('/home');
+      if (data) {
+        await saveSessionFromQr(data);
+        const user = await getUser();
+        if (user) {
+          router.push("/home");
         }
-        setScanned(false);
-      }, 3000);
+      }
     }
   };
 
@@ -77,31 +77,28 @@ export default function QRScan() {
       {Platform.OS === "android" ? <StatusBar hidden /> : null}
       <CameraView
         style={StyleSheet.absoluteFillObject}
-        onBarcodeScanned={scanned ? undefined : (result) => handleBarCodeScanned(result)}
+        onBarcodeScanned={
+          scanned ? undefined : (result) => handleBarCodeScanned(result)
+        }
       />
       <Overlay />
-      {scanned && (
-        <View style={styles.scanAgainContainer}>
-          <Text style={styles.scanAgainText}>Tap to Scan Again</Text>
-        </View>
-      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   scanAgainContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 50,
     left: 0,
     right: 0,
-    alignItems: 'center',
+    alignItems: "center",
   },
   scanAgainText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    fontWeight: "bold",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,

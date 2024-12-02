@@ -10,6 +10,8 @@ export const saveSessionFromQr = async (data: string) => {
 export const getSession = async () => {
   const data = await SecureStore.getItemAsync("session");
 
+  console.log(data);
+
   return data;
 };
 
@@ -17,6 +19,26 @@ export const removeSession = async () => {
   const session = await SecureStore.setItemAsync("session", "");
 
   return session;
+};
+
+export const signOut = async () => {
+  const session = await getSession();
+  const req = await fetch(`${NEXT_API_URL}/api/auth/signout`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Cookie: `__Secure-authjs.session-token=${session};`,
+    },
+    body: await fetch(`${NEXT_API_URL}/api/auth/csrf`, {
+      headers: {
+        Cookie: `__Secure-authjs.session-token=${session}`,
+      },
+    }).then((rs) => rs.text()),
+  });
+
+  await removeSession();
+  return req;
 };
 
 export const getUser = async () => {

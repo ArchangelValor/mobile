@@ -1,9 +1,9 @@
 import React from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
+import { ScrollView, StyleSheet, View, Text, Button } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MetricCard from "@/components/MetricCard";
 import ProfitLossCard from "@/components/ProfitLossCard";
-import { getUser } from "@/helper/Session";
+import { getUser, signOut } from "@/helper/Session";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { removeSession } from "@/helper/Session";
@@ -15,7 +15,6 @@ export default function home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
-
   useEffect(() => {
     const request = async () => {
       try {
@@ -63,6 +62,8 @@ export default function home() {
                 date="November 2024"
               />
             </View>
+
+            <Button title="Log Out" onPress={async () => await signOut()} />
           </ScrollView>
         </>
       )}

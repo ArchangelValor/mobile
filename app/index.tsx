@@ -2,26 +2,24 @@ import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
 import { Link, Stack } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { getUser } from "@/helper/Session";
+import { getUser, getSession, removeSession, signOut } from "@/helper/Session";
 import { useRouter } from "expo-router";
 import { ActivityIndicator } from "react-native";
 
 export default function QRScan() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    setIsLoading(true);
     const session = async () => {
-      const user = await getUser();
-      console.log(user);
-      if (user) {
-        router.push("/home");
+      const session = await getSession();
+      if (session) {
+        router.replace("/home");
       }
+      setIsLoading(false);
     };
     session();
-    setIsLoading(false);
-  });
+  }, []);
 
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -30,7 +28,11 @@ export default function QRScan() {
   return (
     <SafeAreaView style={styles.container}>
       {isLoading ? (
-        <ActivityIndicator size={"small"} />
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator size="large" />
+        </View>
       ) : (
         <>
           <Stack.Screen options={{ title: "Overview", headerShown: false }} />
@@ -76,4 +78,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
