@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { ActivityIndicator } from "react-native";
 
 export default function QRScan() {
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,21 +59,21 @@ export default function QRScan() {
 }
 
 const styles = StyleSheet.create({
-  scanAgainContainer: {
-    position: 'absolute',
-    bottom: 50,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "black",
+    justifyContent: "space-around",
+    paddingVertical: 80,
   },
-  scanAgainText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
+  title: {
+    color: "white",
+    fontSize: 40,
+  },
+  buttonStyle: {
+    color: "#0E7AFE",
+    fontSize: 20,
+    textAlign: "center",
   },
 });
 
