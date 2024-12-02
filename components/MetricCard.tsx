@@ -1,18 +1,17 @@
 import { View, StyleSheet } from 'react-native';
 import { Text } from './Text';
+import { TrendingUp, TrendingDown } from 'lucide-react-native';
 
 interface MetricCardProps {
   title: string;
   amount: string;
-  change: string;
-  isNegative?: boolean;
+  change: number;
 }
 
 export default function MetricCard({ 
   title, 
   amount, 
-  change, 
-  isNegative = false 
+  change,
 }: MetricCardProps) {
   return (
     <View style={styles.container}>
@@ -20,16 +19,16 @@ export default function MetricCard({
         <Text style={styles.title}>{title}</Text>
       </View>
       <Text style={[
-        styles.amount,
-        isNegative && styles.negative
+        styles.amount
       ]}>
         {amount}
       </Text>
       <Text style={[
         styles.change,
-        isNegative ? styles.redText : styles.greenText
+        change >= 0 ? styles.greenText : styles.redText
       ]}>
-        {change}
+        {change >= 0 ? "↑ " : "↓ "}
+        {change}% from last month
       </Text>
     </View>
   );

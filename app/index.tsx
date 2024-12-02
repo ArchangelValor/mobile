@@ -2,33 +2,27 @@ import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
 import { Link, Stack } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { getSession, removeSession, getUser } from "@/helper/Session";
+import { getUser } from "@/helper/Session";
 import { useRouter } from "expo-router";
+import { ActivityIndicator } from "react-native";
 
 export default function index() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  
+
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     const session = async () => {
       const user = await getUser();
-
-      if(user) {
-        router.push('/home');
+      console.log(user);
+      if (user) {
+        router.push("/home");
       }
     };
     session();
     setIsLoading(false);
-  })
-
-  if(isLoading) {
-    return (
-    <View>
-      <Text>Loading ...</Text>
-    </View>)
-  }
+  });
 
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -36,25 +30,31 @@ export default function index() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: "Overview", headerShown: false }} />
-      <Text style={styles.title}>QR Code Scanner</Text>
-      <View style={{ gap: 20 }}>
-        <Pressable onPress={requestPermission}>
-          <Text style={styles.buttonStyle}>Request Permissions</Text>
-        </Pressable>
-        <Link href={"/qrscan"} asChild>
-          <Pressable disabled={!isPermissionGranted}>
-            <Text
-              style={[
-                styles.buttonStyle,
-                { opacity: !isPermissionGranted ? 0.5 : 1 },
-              ]}
-            >
-              Scan Code
-            </Text>
-          </Pressable>
-        </Link>
-      </View>
+      {isLoading ? (
+        <ActivityIndicator size={"small"} />
+      ) : (
+        <>
+          <Stack.Screen options={{ title: "Overview", headerShown: false }} />
+          <Text style={styles.title}>QR Code Scanner</Text>
+          <View style={{ gap: 20 }}>
+            <Pressable onPress={requestPermission}>
+              <Text style={styles.buttonStyle}>Request Permissions</Text>
+            </Pressable>
+            <Link href={"/qrscan"} asChild>
+              <Pressable disabled={!isPermissionGranted}>
+                <Text
+                  style={[
+                    styles.buttonStyle,
+                    { opacity: !isPermissionGranted ? 0.5 : 1 },
+                  ]}
+                >
+                  Scan Code
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
