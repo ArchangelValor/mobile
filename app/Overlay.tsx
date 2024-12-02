@@ -12,10 +12,11 @@ const inner = rrect(
     width / 2 - innerDimension / 2,
     height / 2.5 - innerDimension / 2,
     innerDimension,
-    innerDimension
+    innerDimension,
+    
   ),
-  25,
-  25
+  5,
+  5
 );
 
 const Overlay = () => {
@@ -87,6 +88,10 @@ const Overlay = () => {
       </Canvas>
       <View style={styles.textContainer}>
         <Text style={styles.text}>SCAN TO CONNECT</Text>
+        <View style={styles.scannerContainer} />
+        <Text style={styles.instructionText}>
+          Position the QR code within the frame to scan
+        </Text>
       </View>
     </>
   );
@@ -108,6 +113,16 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
+  },
+
+  scannerContainer:{
+    marginTop:420,
+  },
+  instructionText: {
+    fontSize: 16,
+    color: 'white',
+    textAlign: 'center',
+    paddingHorizontal: 40,
   },
 });
 
