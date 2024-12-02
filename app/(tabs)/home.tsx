@@ -1,12 +1,33 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MetricCard from '@/components/MetricCard';
 import ProfitLossCard from '@/components/ProfitLossCard';
+import { getUser } from '@/helper/Session';
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import { removeSession } from '@/helper/Session';
 
 export default function home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const request = async () => {
+      try{
+        const user = await getUser();
+        if(user) return alert(user);
+      }catch(error) {
+        await removeSession();
+        router.push('/qrscan');
+        console.log(error)
+      }
+    }
+    request()
+  })
+  
   return (
     <SafeAreaView style={styles.container}>
+      
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <MetricCard

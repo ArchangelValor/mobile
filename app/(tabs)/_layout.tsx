@@ -21,6 +21,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Dashboard",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home-sharp" : "home-outline"}
@@ -34,6 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="rscanner"
         options={{
+          title:'Scanner',
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons

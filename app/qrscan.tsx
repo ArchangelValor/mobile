@@ -12,8 +12,11 @@ import {
   Text,
 } from "react-native";
 import Overlay from "./Overlay";
+import { saveSessionFromQr, getUser } from "@/helper/Session";
+import { useRouter } from "expo-router";
 
 export default function QRScan() {
+  const router = useRouter();
   const qrLock = useRef(false);
   const appState = useRef(AppState.currentState);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -41,17 +44,16 @@ export default function QRScan() {
     };
   }, []);
 
-  const handleBarCodeScanned = (result: BarcodeScanningResult) => {
+  const handleBarCodeScanned = async (result: BarcodeScanningResult) => {
     const { data } = result;
     if (data && !qrLock.current) {
       qrLock.current = true;
       setScanned(true);
-      setTimeout(async () => {
-        await Linking.openURL(data);
-        alert(`QR code has been scanned!`);
-        setScanned(false);
-        qrLock.current = false;
-      }, 500);
+      await saveSessionFromQr(data);
+      if(data) {
+        router.push('/home');
+      }
+      setScanned(false);
     }
   };
 

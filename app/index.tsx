@@ -1,9 +1,36 @@
 import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
 import { Link, Stack } from "expo-router";
-
 import { useCameraPermissions } from "expo-camera";
+import { useEffect, useState } from "react";
+import { getSession, removeSession } from "@/helper/Session";
+import { useRouter } from "expo-router";
 
 export default function index() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+  
+  useEffect(() => {
+    setIsLoading(true)
+    const session = async () => {
+      const get = await getSession();
+
+      console.log(get);
+      if(get) {
+        router.push('/home');
+      }
+    };
+    session();
+    setIsLoading(false);
+  })
+
+  if(!isLoading) {
+    return (
+    <View>
+      <Text>Loading ...</Text>
+    </View>)
+  }
+
   const [permission, requestPermission] = useCameraPermissions();
 
   const isPermissionGranted = Boolean(permission?.granted);
