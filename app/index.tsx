@@ -6,9 +6,7 @@ import { getUser } from "@/helper/Session";
 import { useRouter } from "expo-router";
 import { ActivityIndicator } from "react-native";
 
-export default function index() {
-  const [isLoading, setIsLoading] = useState(false);
-
+export default function QRScan() {
   const router = useRouter();
 
   useEffect(() => {
@@ -60,20 +58,21 @@ export default function index() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "black",
-    justifyContent: "space-around",
-    paddingVertical: 80,
+  scanAgainContainer: {
+    position: 'absolute',
+    bottom: 50,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
-  title: {
-    color: "white",
-    fontSize: 40,
-  },
-  buttonStyle: {
-    color: "#0E7AFE",
-    fontSize: 20,
-    textAlign: "center",
+  scanAgainText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
 });
+
