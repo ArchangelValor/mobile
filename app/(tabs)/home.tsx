@@ -4,18 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MetricCard from '@/components/MetricCard';
 import ProfitLossCard from '@/components/ProfitLossCard';
 import { getUser } from '@/helper/Session';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { removeSession } from '@/helper/Session';
+import WelcomeCard from '@/components/WelcomeCard';
+import { ActivityIndicator } from 'react-native';
 
 export default function home() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     const request = async () => {
       try{
         const user = await getUser();
-        if(user) return alert(user);
       }catch(error) {
         await removeSession();
         router.push('/qrscan');
@@ -23,11 +26,15 @@ export default function home() {
       }
     }
     request()
+    setIsLoading(false);
   })
   
   return (
     <SafeAreaView style={styles.container}>
-      
+      {
+        isLoading ? <ActivityIndicator size={"small"}/> : 
+        <>
+        <WelcomeCard/>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <MetricCard
@@ -59,6 +66,8 @@ export default function home() {
           />
         </View>
       </ScrollView>
+        </>
+      }
     </SafeAreaView>
   );
 }

@@ -50,10 +50,12 @@ export default function QRScan() {
       qrLock.current = true;
       setScanned(true);
       await saveSessionFromQr(data);
-      if(data) {
-        router.push('/home');
-      }
-      setScanned(false);
+      setInterval(() => {
+        if(data) {
+          router.push('/home');
+        }
+        setScanned(false);
+      }, 3000);
     }
   };
 

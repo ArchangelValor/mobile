@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
 import { Link, Stack } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { getSession, removeSession } from "@/helper/Session";
+import { getSession, removeSession, getUser } from "@/helper/Session";
 import { useRouter } from "expo-router";
 
 export default function index() {
@@ -13,10 +13,9 @@ export default function index() {
   useEffect(() => {
     setIsLoading(true)
     const session = async () => {
-      const get = await getSession();
+      const user = await getUser();
 
-      console.log(get);
-      if(get) {
+      if(user) {
         router.push('/home');
       }
     };
@@ -24,7 +23,7 @@ export default function index() {
     setIsLoading(false);
   })
 
-  if(!isLoading) {
+  if(isLoading) {
     return (
     <View>
       <Text>Loading ...</Text>
