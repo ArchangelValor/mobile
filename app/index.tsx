@@ -1,79 +1,109 @@
-import { View, Text, StyleSheet, SafeAreaView, Pressable } from "react-native";
-import { Link, Stack } from "expo-router";
-import { useCameraPermissions } from "expo-camera";
-import { useEffect, useState } from "react";
-import { getSession, removeSession, getUser } from "@/helper/Session";
+import { CameraView, BarcodeScanningResult, Camera } from "expo-camera";
+import { Stack } from "expo-router";
+import { useState, useEffect, useRef } from 'react';
+import {
+  AppState,
+  Linking,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View,
+  Text,
+} from "react-native";
+import Overlay from "./Overlay";
+import { saveSessionFromQr, getUser } from "@/helper/Session";
 import { useRouter } from "expo-router";
 
-export default function index() {
-  const [isLoading, setIsLoading] = useState(false);
-
+export default function QRScan() {
   const router = useRouter();
-  
+  const qrLock = useRef(false);
+  const appState = useRef(AppState.currentState);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [scanned, setScanned] = useState(false);
+
   useEffect(() => {
-    setIsLoading(true)
-    const session = async () => {
-      const user = await getUser();
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
 
-      if(user) {
-        router.push('/home');
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        qrLock.current = false;
+        setScanned(false);
       }
-    };
-    session();
-    setIsLoading(false);
-  })
+      appState.current = nextAppState;
+    });
 
-  if(isLoading) {
-    return (
-    <View>
-      <Text>Loading ...</Text>
-    </View>)
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  const handleBarCodeScanned = async (result: BarcodeScanningResult) => {
+    const { data } = result;
+    if (data && !qrLock.current) {
+      qrLock.current = true;
+      setScanned(true);
+      await saveSessionFromQr(data);
+      setInterval(() => {
+        if(data) {
+          router.push('/home');
+        }
+        setScanned(false);
+      }, 3000);
+    }
+  };
+
+  if (hasPermission === null) {
+    return <View />;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
   }
 
-  const [permission, requestPermission] = useCameraPermissions();
-
-  const isPermissionGranted = Boolean(permission?.granted);
-
   return (
-    <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: "Overview", headerShown: false }} />
-      <Text style={styles.title}>QR Code Scanner</Text>
-      <View style={{ gap: 20 }}>
-        <Pressable onPress={requestPermission}>
-          <Text style={styles.buttonStyle}>Request Permissions</Text>
-        </Pressable>
-        <Link href={"/qrscan"} asChild>
-          <Pressable disabled={!isPermissionGranted}>
-            <Text
-              style={[
-                styles.buttonStyle,
-                { opacity: !isPermissionGranted ? 0.5 : 1 },
-              ]}
-            >
-              Scan Code
-            </Text>
-          </Pressable>
-        </Link>
-      </View>
+    <SafeAreaView style={StyleSheet.absoluteFillObject}>
+      <Stack.Screen
+        options={{
+          title: "QR Scanner",
+          headerShown: false,
+        }}
+      />
+      {Platform.OS === "android" ? <StatusBar hidden /> : null}
+      <CameraView
+        style={StyleSheet.absoluteFillObject}
+        onBarcodeScanned={scanned ? undefined : (result) => handleBarCodeScanned(result)}
+      />
+      <Overlay />
+      {scanned && (
+        <View style={styles.scanAgainContainer}>
+          <Text style={styles.scanAgainText}>Tap to Scan Again</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "black",
-    justifyContent: "space-around",
-    paddingVertical: 80,
+  scanAgainContainer: {
+    position: 'absolute',
+    bottom: 50,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
-  title: {
-    color: "white",
-    fontSize: 40,
-  },
-  buttonStyle: {
-    color: "#0E7AFE",
-    fontSize: 20,
-    textAlign: "center",
+  scanAgainText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
 });

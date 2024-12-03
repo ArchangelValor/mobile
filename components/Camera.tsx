@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Button } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Button, Pressable } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import RCOverlay from './RCOverlay';
@@ -28,7 +28,7 @@ export default function Camera() {
   };
 
   const toggleTorch = () => {
-    setTorch(current => current === true ? false : true);
+    setTorch(current => !current);
   };
 
   return (
@@ -38,18 +38,18 @@ export default function Camera() {
         facing={facing}
         enableTorch={torch}
       >
-        <RCOverlay isTorchOn={torch === true} />
+        <RCOverlay isTorchOn={torch} />
+        <Pressable style={styles.torchButton} onPress={toggleTorch}>
+          <Ionicons 
+            name={torch ? "flash" : "flash-off"} 
+            size={30} 
+            color="white" 
+          />
+        </Pressable>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
             <Ionicons name="scan-outline" size={30} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.torchButton} onPress={toggleTorch}>
-            <Ionicons 
-              name={torch === true ? "flash" : "flash-off"} 
-              size={30} 
-              color="white" 
-            />
-           </TouchableOpacity>
         </View>
       </CameraView>
       {scanned && (
@@ -85,9 +85,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'black',
-    marginRight: 20,
   },
   torchButton: {
+    position: 'absolute',
+    top: 100,
+    alignSelf: 'center',
     height: 50,
     width: 50,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
