@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Button } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Button } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import RCOverlay from './RCOverlay';
@@ -8,6 +8,7 @@ export default function Camera() {
   const [facing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+  const [torch, setTorch] = useState<'on' | 'off'>('off');
 
   if (!permission) {
     return <View />;
@@ -16,16 +17,18 @@ export default function Camera() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant permission" />
+        <Button onPress={requestPermission} title="Grant camera permission" />
       </View>
     );
   }
 
   const handleCapture = () => {
-    // Implement receipt capture logic here
     setScanned(true);
     alert('Receipt captured!');
+  };
+
+  const toggleTorch = () => {
+    setTorch(current => current === 'on' ? 'off' : 'on');
   };
 
   return (
@@ -33,12 +36,20 @@ export default function Camera() {
       <CameraView 
         style={styles.camera} 
         facing={facing}
+        flashMode={torch}
       >
-        <RCOverlay />
+        <RCOverlay isTorchOn={torch === 'on'} />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
             <Ionicons name="scan-outline" size={30} color="black" />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.torchButton} onPress={toggleTorch}>
+            <Ionicons 
+              name={torch === 'on' ? "flash" : "flash-off"} 
+              size={30} 
+              color="white" 
+            />
+           </TouchableOpacity>
         </View>
       </CameraView>
       {scanned && (
@@ -53,10 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-  },
   camera: {
     flex: 1,
   },
@@ -65,6 +72,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: 0,
     right: 0,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -77,10 +85,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'black',
+    marginRight: 20,
   },
-  text: {
-    fontSize: 18,
-    color: 'white',
+  torchButton: {
+    height: 50,
+    width: 50,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
