@@ -8,7 +8,7 @@ export default function Camera() {
   const [facing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-  const [torch, setTorch] = useState<'on' | 'off'>('off');
+  const [torch, setTorch] = useState(false);
 
   if (!permission) {
     return <View />;
@@ -28,7 +28,7 @@ export default function Camera() {
   };
 
   const toggleTorch = () => {
-    setTorch(current => current === 'on' ? 'off' : 'on');
+    setTorch(current => current === true ? false : true);
   };
 
   return (
@@ -36,16 +36,16 @@ export default function Camera() {
       <CameraView 
         style={styles.camera} 
         facing={facing}
-        flash={torch}
+        enableTorch={torch}
       >
-        <RCOverlay isTorchOn={torch === 'on'} />
+        <RCOverlay isTorchOn={torch === true} />
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
             <Ionicons name="scan-outline" size={30} color="black" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.torchButton} onPress={toggleTorch}>
             <Ionicons 
-              name={torch === 'on' ? "flash" : "flash-off"} 
+              name={torch === true ? "flash" : "flash-off"} 
               size={30} 
               color="white" 
             />
