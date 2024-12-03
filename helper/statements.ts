@@ -6,6 +6,9 @@ export const getStatement = async () => {
   try {
     const req = await fetch(`${NEXT_API_URL}/api/total/month`, {
       method: "GET",
+      headers: {
+        Cookie: `;__Secure-authjs.session-token=${session};`,
+      },
     });
 
     if (req.ok) {
