@@ -36,7 +36,7 @@ export default function Camera() {
       <CameraView 
         style={styles.camera} 
         facing={facing}
-        flashMode={torch}
+        flash={torch}
       >
         <RCOverlay isTorchOn={torch === 'on'} />
         <View style={styles.buttonContainer}>
